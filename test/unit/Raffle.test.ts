@@ -1,6 +1,6 @@
-// 1. get our SubID for Chainlink VRF
-// 2. Deploy our contract using the SubID
-// 3. Register the contract with Chainlink VRF & it´s SubID
+// 1. get our SubscriptionID for Chainlink VRF
+// 2. Deploy our contract using the SubscriptionID
+// 3. Register the contract with Chainlink VRF & its SubscriptionID
 // 4. Register the contract with Chainlink Keepers
 // 5. Run staging tests
 
@@ -11,6 +11,8 @@ import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
 import { Address } from "hardhat-deploy/dist/types";
 import { developmentChains, networkConfig } from "../../helper-hardhat-config";
+
+// all these tests are done locally and not in Sepolia
 
 !developmentChains.includes(network.name)
     ? describe.skip
@@ -71,7 +73,7 @@ import { developmentChains, networkConfig } from "../../helper-hardhat-config";
                   // evm_increaseTime & evm_mine
                   // are time travelling functions
                   await network.provider.send("evm_increaseTime", [interval + 1]);
-                  // or await network.provider.request({method: "evm_mine", params: []})
+                  // this or await network.provider.request({method: "evm_mine", params: []})
                   await network.provider.send("evm_mine", []);
                   //   [] = bytes calldata (empty)
                   // performUpKeep so status of Raffle is changed to CALCULATING
@@ -151,6 +153,7 @@ import { developmentChains, networkConfig } from "../../helper-hardhat-config";
               it("picks a winner, resets the lottery, and sends money", async function () {
                   const additionalEntrants = 3;
                   const startingAccountIndex = 1; // deployer = 0
+                  // getSigners --> it is like the list of accounts one can use in Remix for testing
                   const accounts = await ethers.getSigners();
                   for (
                       let i = startingAccountIndex;

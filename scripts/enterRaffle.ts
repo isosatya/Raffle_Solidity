@@ -1,5 +1,6 @@
-import { error, log } from "console";
 import { ethers } from "hardhat";
+
+// script just for entering the raffle
 
 async function enterRaffle() {
     const raffle = await ethers.getContract("Raffle");

@@ -12,6 +12,7 @@ pragma solidity ^0.8.8;
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
+import "hardhat/console.sol";
 
 error Raffle__NotEnoughETHEntered();
 error Raffle__TransferFailed();
@@ -36,6 +37,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
+    // Parameters exclusive for VRFCoordinatorV2Interface
     bytes32 private immutable i_gasLane;
     uint64 private immutable i_subscriptionId;
     uint32 private immutable i_callbackGasLimit;
@@ -73,6 +75,15 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     /* Functions */
+
+    // added these two otherwise I get error when trying to transfer
+    receive() external payable {
+        enterRaffle();
+    }
+
+    fallback() external payable {
+        enterRaffle();
+    }
 
     function enterRaffle() public payable {
         // same as require (msg.value > i_entranceFee, "Not enough ETH")
@@ -128,8 +139,12 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
         // request the random number
         // once we get it, do something with it
-        // process in 2 steps
+        
+        //      Process in 2 steps
         s_raffleState = RaffleState.CALCULATING;
+
+        //      STEP - 1 --> pick the winner
+        // requestRandomWords already emits an event
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane, // gas lane
             i_subscriptionId,
@@ -141,9 +156,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RequestedRaffleWinner(requestId);
     }
 
+        //      STEP - 2 --> transfer the money
     function fulfillRandomWords(
         uint256 /*requestId*/,
-        uint256[] memory randomWords
+        uint256[] memory randomWords  // address of the contract? is array correct or address instead?
     ) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];

@@ -6,6 +6,8 @@ import "hardhat-deploy";
 import { Address } from "hardhat-deploy/dist/types";
 import { developmentChains, networkConfig } from "../../helper-hardhat-config";
 
+// this test we deploy in Sepolia and not local
+
 developmentChains.includes(network.name)
     ? describe.skip
     : describe("Raffle Staging Test", () => {
@@ -35,6 +37,7 @@ developmentChains.includes(network.name)
                               const raffleState = await raffle.getRaffleState();
                               const winnerEndingBalance = await accounts[0].getBalance();
                               const endingTimeStamp = await raffle.getLatestTimeStamp();
+                              // because array is already empty
                               await expect(raffle.getPlayer(0)).to.be.reverted;
                               assert.equal(recentWinner.toString(), accounts[0].address);
                               assert.equal(raffleState, 0);
@@ -43,7 +46,7 @@ developmentChains.includes(network.name)
                                   winnerStartingBalance.add(raffleEntranceFee).toString()
                               );
                               assert(endingTimeStamp > startingTimeStamp);
-                              resolve(recentWinner);
+                              resolve();
                           } catch (error) {
                               console.log(error);
                               reject(error);

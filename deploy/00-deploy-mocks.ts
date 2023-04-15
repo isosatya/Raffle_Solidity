@@ -13,6 +13,7 @@ module.exports = async function (hre: HardhatRuntimeEnvironment) {
     const { deployer } = await getNamedAccounts();
     // or network.name ??
     const chainId = network.config.chainId;
+    // args = the arguments that the constructor needs
     const args = [BASE_FEE, GAS_PRICE_LINK];
 
     if (developmentChains.includes(network.name)) {
